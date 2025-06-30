@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { json } from "@remix-run/node";
 import { authenticate } from "~/shopify.server";
 
+
 export async function loader({ request }) {
   try {
     // Authenticate the Shopify admin request
