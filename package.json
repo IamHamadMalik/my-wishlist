@@ -22,7 +22,6 @@
   "engines": {
     "node": "^18.20 || ^20.10 || >=21.0.0"
   },
-  
   "dependencies": {
     "@prisma/client": "^6.10.1",
     "@remix-run/dev": "^2.16.1",
