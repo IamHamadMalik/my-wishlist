@@ -12,7 +12,6 @@ if (!process.env.SHOPIFY_APP_URL) {
   throw new Error("❌ SHOPIFY_APP_URL is not defined in environment variables.");
 }
 
-
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
