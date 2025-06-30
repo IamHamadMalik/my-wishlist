@@ -97,6 +97,7 @@ export default function Index() {
     "",
   );
 
+  
   useEffect(() => {
     if (productId) {
       shopify.toast.show("Product created");
