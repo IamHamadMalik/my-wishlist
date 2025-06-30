@@ -8,12 +8,16 @@ import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prism
 
 import prisma from "./db.server";
 
+if (!process.env.SHOPIFY_APP_URL) {
+  throw new Error("❌ SHOPIFY_APP_URL is not defined in environment variables.");
+}
+
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
   apiVersion: ApiVersion.April25,
   scopes: process.env.SCOPES?.split(",") || ["read_customers", "write_products"],
-  appUrl: process.env.SHOPIFY_APP_URL || "",
+  appUrl: process.env.SHOPIFY_APP_URL,
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
