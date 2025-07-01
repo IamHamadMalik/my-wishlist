@@ -1,24 +1,86 @@
 import { json } from "@remix-run/node";
 import prisma from "../db.server";
 
+// Handle POST requests to add a wishlist item
 export async function action({ request }) {
-  const { customerId, productId } = await request.json();
-
-  if (!customerId || !productId) {
-    return json({ error: "Missing fields" }, { status: 400 });
+  if (request.method !== "POST") {
+    return json(
+      { error: "Method not allowed" },
+      {
+        status: 405,
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Replace * with your store domain in production
+        },
+      }
+    );
   }
 
-  const existing = await prisma.wishlistItem.findFirst({
-    where: { customerId, productId },
-  });
+  try {
+    const { customerId, productId } = await request.json();
 
-  if (existing) {
-    return json({ message: "Already in wishlist" });
+    if (!customerId || !productId) {
+      return json(
+        { error: "Missing fields" },
+        {
+          status: 400,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      );
+    }
+
+    const existing = await prisma.wishlistItem.findFirst({
+      where: { customerId, productId },
+    });
+
+    if (existing) {
+      return json(
+        { message: "Already in wishlist" },
+        {
+          status: 200,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      );
+    }
+
+    const newItem = await prisma.wishlistItem.create({
+      data: { customerId, productId },
+    });
+
+    return json(
+      { message: "Added", item: newItem },
+      {
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
+    );
+  } catch (error) {
+    console.error("❌ Error adding to wishlist:", error);
+    return json(
+      { error: "Internal server error" },
+      {
+        status: 500,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
+    );
   }
+}
 
-  const newItem = await prisma.wishlistItem.create({
-    data: { customerId, productId },
+// Handle preflight OPTIONS requests for CORS
+export async function loader() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
   });
-
-  return json({ message: "Added", item: newItem });
 }
