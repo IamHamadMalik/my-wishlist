@@ -7,6 +7,7 @@ import prisma from "../db.server";
 export async function loader({ request }) {
   const url = new URL(request.url);
   const customerId = url.searchParams.get("customerId");
+    console.log("🧪 Incoming Customer ID:", customerId);
 
   if (!customerId) {
     return json({ wishlist: [], error: "Missing customer ID" });
