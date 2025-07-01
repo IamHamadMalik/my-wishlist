@@ -9,9 +9,9 @@ export async function loader({ request }) {
   const customerId = url.searchParams.get("customerId");
     console.log("🧪 Incoming Customer ID:", customerId);
 
-  if (!customerId) {
-    return json({ wishlist: [], error: "Missing customer ID" });
-  }
+//   if (!customerId) {
+//     return json({ wishlist: [], error: "Missing customer ID" });
+//   }
 
   const wishlist = await prisma.wishlistItem.findMany({
     where: { customerId },
