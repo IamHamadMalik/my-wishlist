@@ -7,8 +7,8 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-export async function action({ request }) {
-  // ✅ Handle CORS preflight request
+// ✅ Respond to CORS preflight via loader
+export async function loader({ request }) {
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
@@ -16,6 +16,12 @@ export async function action({ request }) {
     });
   }
 
+  // If someone tries to GET this route, return an error
+  return json({ error: "GET not supported" }, { status: 405, headers: corsHeaders });
+}
+
+// ✅ Handle actual DELETE request via POST
+export async function action({ request }) {
   try {
     const { id } = await request.json();
 
