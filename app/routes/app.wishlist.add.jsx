@@ -9,7 +9,7 @@ export async function action({ request }) {
       {
         status: 405,
         headers: {
-          "Access-Control-Allow-Origin": "*", // Replace * with your store domain in production
+          "Access-Control-Allow-Origin": "https://www.luxuriawomen.com", // Replace * with your store domain in production
         },
       }
     );
