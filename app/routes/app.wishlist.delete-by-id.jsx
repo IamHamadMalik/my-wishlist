@@ -1,25 +1,41 @@
 import { json } from "@remix-run/node";
 import prisma from "../db.server";
 
-export async function action({ request }) {
-  const { id } = await request.json();
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
 
-  if (!id) {
-    return json({ error: "Missing ID" }, {
-      status: 400,
-      headers: {
-        "Access-Control-Allow-Origin": "*"
-      }
+export async function action({ request }) {
+  // ✅ Handle CORS preflight request
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
     });
   }
 
-  await prisma.wishlistItem.delete({
-    where: { id },
-  });
+  try {
+    const { id } = await request.json();
 
-  return json({ message: "Deleted" }, {
-    headers: {
-      "Access-Control-Allow-Origin": "*"
+    if (!id) {
+      return json(
+        { error: "Missing ID" },
+        { status: 400, headers: corsHeaders }
+      );
     }
-  });
+
+    await prisma.wishlistItem.delete({
+      where: { id },
+    });
+
+    return json({ message: "Deleted" }, { headers: corsHeaders });
+  } catch (err) {
+    console.error("Delete by ID error:", err);
+    return json(
+      { error: "Server error" },
+      { status: 500, headers: corsHeaders }
+    );
+  }
 }
