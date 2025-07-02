@@ -21,13 +21,35 @@ export async function loader({ request }) {
   }
 
   try {
-    const items = await prisma.wishlistItem.findMany({
+    const rawItems = await prisma.wishlistItem.findMany({
       where: { customerId },
       orderBy: { createdAt: "desc" },
     });
 
+    // 🔄 Enrich with full product info
+    const enrichedItems = await Promise.all(
+      rawItems.map(async (item) => {
+        try {
+          const res = await fetch(`https://www.luxuriawomen.com/products/${item.productHandle}.js`);
+          const product = await res.json();
+
+          return {
+            ...item,
+            title: product.title,
+            price: product.price,
+            vendor: product.vendor,
+            image: product.featured_image,
+            handle: product.handle,
+          };
+        } catch (err) {
+          console.warn("❌ Failed to fetch product:", item.productHandle);
+          return { ...item, title: null }; // fallback
+        }
+      })
+    );
+
     return json(
-      { items },
+      { items: enrichedItems },
       {
         headers: corsHeaders,
       }
