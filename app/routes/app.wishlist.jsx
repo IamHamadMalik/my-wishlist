@@ -5,32 +5,28 @@ import prisma from "../db.server";
 
 // ✅ Loader: Fetch wishlist with full product data from Shopify
 export async function loader({ request }) {
-    console.log(request);
   const url = new URL(request.url);
-  const customerId = url.searchParams.get("customerId") || "123123";
+  const customerId = url.searchParams.get("customerId");
+
   console.log("🧪 Incoming Customer ID:", customerId);
 
-
-  console.log(customerId);
-  if (!customerId) {
-    return json({ wishlist: [], error: "Missing dsas customer ID" });
-  }
+  const whereClause = customerId ? { customerId } : {}; // ← fetch all if not provided
 
   const wishlist = await prisma.wishlistItem.findMany({
-    where: { customerId },
+    where: whereClause,
     orderBy: { createdAt: "desc" },
   });
 
-  // If no items, return early
   if (!wishlist.length) {
     return json({ wishlist: [] });
   }
 
-  // 🔄 Fetch full product info from Shopify Storefront API
   const enrichedWishlist = await Promise.all(
     wishlist.map(async (item) => {
       try {
-        const productRes = await fetch(`https://www.luxuriawomen.com/products/${item.productHandle}.js`);
+        const productRes = await fetch(
+          `https://www.luxuriawomen.com/products/${item.productHandle}.js`
+        );
         const product = await productRes.json();
 
         return {
@@ -43,7 +39,7 @@ export async function loader({ request }) {
         };
       } catch (err) {
         console.error("⚠️ Failed to load product for:", item.productHandle);
-        return { ...item, title: null }; // graceful fallback
+        return { ...item, title: null };
       }
     })
   );
