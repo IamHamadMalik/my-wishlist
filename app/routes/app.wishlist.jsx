@@ -1,84 +1,97 @@
 // app/routes/app.wishlist.jsx
 import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import prisma from "../db.server";
 
-// ✅ Action: Add item to wishlist with productHandle
-export async function action({ request }) {
-  if (request.method !== "POST") {
-    return json(
-      { error: "Method not allowed" },
-      {
-        status: 405,
-        headers: {
-          "Access-Control-Allow-Origin": "*", // Replace with store domain if needed
-        },
-      }
-    );
+// ✅ Loader: Fetch wishlist with full product data from Shopify
+export async function loader({ request }) {
+  const url = new URL(request.url);
+  const customerId = url.searchParams.get("customerId");
+  console.log("🧪 Incoming Customer ID:", customerId);
+
+  if (!customerId) {
+    return json({ wishlist: [], error: "Missing customer ID" });
   }
 
-  try {
-    const { customerId, productId, productHandle } = await request.json();
+  const wishlist = await prisma.wishlistItem.findMany({
+    where: { customerId },
+    orderBy: { createdAt: "desc" },
+  });
 
-    if (!customerId || !productId || !productHandle) {
-      return json(
-        { error: "Missing fields" },
-        {
-          status: 400,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
-    }
-
-    const existing = await prisma.wishlistItem.findFirst({
-      where: { customerId, productId },
-    });
-
-    if (existing) {
-      return json(
-        { message: "Already in wishlist" },
-        {
-          status: 200,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
-    }
-
-    const newItem = await prisma.wishlistItem.create({
-      data: { customerId, productId, productHandle },
-    });
-
-    return json(
-      { message: "Added", item: newItem },
-      {
-        status: 200,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
-  } catch (error) {
-    console.error("❌ Error adding to wishlist:", error);
-    return json(
-      { error: "Internal server error" },
-      {
-        status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
+  // If no items, return early
+  if (!wishlist.length) {
+    return json({ wishlist: [] });
   }
+
+  // 🔄 Fetch full product info from Shopify Storefront API
+  const enrichedWishlist = await Promise.all(
+    wishlist.map(async (item) => {
+      try {
+        const productRes = await fetch(`https://www.luxuriawomen.com/products/${item.productHandle}.js`);
+        const product = await productRes.json();
+
+        return {
+          ...item,
+          title: product.title,
+          vendor: product.vendor,
+          price: product.price,
+          image: product.featured_image,
+          handle: product.handle,
+        };
+      } catch (err) {
+        console.error("⚠️ Failed to load product for:", item.productHandle);
+        return { ...item, title: null }; // graceful fallback
+      }
+    })
+  );
+
+  return json({ wishlist: enrichedWishlist });
 }
 
-// ✅ Handle OPTIONS (CORS preflight)
-export function headers() {
-  return {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
+// ✅ UI: Show full product details
+export default function WishlistPage() {
+  const { wishlist = [], error } = useLoaderData();
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto space-y-8">
+      <h1 className="text-3xl font-bold text-pink-600">💖 My Wishlist</h1>
+
+      {error ? (
+        <p className="text-red-500 font-semibold">{error}</p>
+      ) : wishlist.length === 0 ? (
+        <p className="text-gray-500 italic">Your wishlist is empty.</p>
+      ) : (
+        <ul className="grid gap-6">
+          {wishlist.map((item) =>
+            item.title ? (
+              <li key={item.id} className="flex items-center gap-4 border p-4 rounded shadow">
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-24 h-24 object-contain border rounded"
+                />
+                <div className="flex-1">
+                  <a
+                    href={`/products/${item.handle}`}
+                    className="text-lg font-semibold text-blue-600 hover:underline"
+                  >
+                    {item.title}
+                  </a>
+                  <p className="text-sm text-gray-500">{item.vendor}</p>
+                  <p className="text-gray-800 font-bold mt-1">${(item.price / 100).toFixed(2)}</p>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Added on: {new Date(item.createdAt).toLocaleString()}
+                </p>
+              </li>
+            ) : (
+              <li key={item.id} className="border p-4 rounded text-gray-400 italic">
+                Product not found or removed.
+              </li>
+            )
+          )}
+        </ul>
+      )}
+    </div>
+  );
 }
