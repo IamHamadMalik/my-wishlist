@@ -1,53 +1,25 @@
-// app/routes/app.wishlist.jsx
+// ✅ File: app/routes/app.wishlist.jsx
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import prisma from "../db.server";
 
-// ✅ Loader: Fetch wishlist for this customer
-export async function loader({ request }) {
-  const url = new URL(request.url);
-  const customerId = url.searchParams.get("customerId");
-  console.log("🧪 Incoming Customer ID:", customerId);
-
-  if (!customerId) {
-    return json({ wishlist: [], error: "Missing customer ID" });
-  }
-
-  const wishlist = await prisma.wishlistItem.findMany({
-    where: { customerId },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return json({ wishlist });
-}
-
 // ✅ Action: Add item to wishlist with productHandle
 export async function action({ request }) {
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  };
+
   if (request.method !== "POST") {
-    return json(
-      { error: "Method not allowed" },
-      {
-        status: 405,
-        headers: {
-          "Access-Control-Allow-Origin": "*", // Replace * with store domain if needed
-        },
-      }
-    );
+    return json({ error: "Method not allowed" }, { status: 405, headers: corsHeaders });
   }
 
   try {
     const { customerId, productId, productHandle } = await request.json();
 
     if (!customerId || !productId || !productHandle) {
-      return json(
-        { error: "Missing fields" },
-        {
-          status: 400,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
+      return json({ error: "Missing fields" }, { status: 400, headers: corsHeaders });
     }
 
     const existing = await prisma.wishlistItem.findFirst({
@@ -55,45 +27,21 @@ export async function action({ request }) {
     });
 
     if (existing) {
-      return json(
-        { message: "Already in wishlist" },
-        {
-          status: 200,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
+      return json({ message: "Already in wishlist" }, { headers: corsHeaders });
     }
 
     const newItem = await prisma.wishlistItem.create({
       data: { customerId, productId, productHandle },
     });
 
-    return json(
-      { message: "Added", item: newItem },
-      {
-        status: 200,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
+    return json({ message: "Added", item: newItem }, { headers: corsHeaders });
   } catch (error) {
     console.error("❌ Error adding to wishlist:", error);
-    return json(
-      { error: "Internal server error" },
-      {
-        status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
+    return json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });
   }
 }
 
-// ✅ Handle OPTIONS (CORS preflight)
+// ✅ CORS Headers for preflight support
 export function headers() {
   return {
     "Access-Control-Allow-Origin": "*",
