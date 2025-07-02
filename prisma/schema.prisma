@@ -33,6 +33,7 @@ model WishlistItem {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   customerId String
   productId String
+  productHandle String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
