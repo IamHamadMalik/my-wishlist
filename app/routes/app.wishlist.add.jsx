@@ -1,3 +1,4 @@
+// app/routes/app.wishlist.add.jsx
 import { json } from "@remix-run/node";
 import prisma from "../db.server";
 
@@ -9,16 +10,17 @@ export async function action({ request }) {
       {
         status: 405,
         headers: {
-          "Access-Control-Allow-Origin": "https://www.luxuriawomen.com", // Replace * with your store domain in production
+          "Access-Control-Allow-Origin": "https://www.luxuriawomen.com", // or "*"
         },
       }
     );
   }
 
   try {
-    const { customerId, productId } = await request.json();
+    const { customerId, productId, productHandle } = await request.json();
+    console.log("📩 Incoming Add Request:", { customerId, productId, productHandle });
 
-    if (!customerId || !productId) {
+    if (!customerId || !productId || !productHandle) {
       return json(
         { error: "Missing fields" },
         {
@@ -47,7 +49,7 @@ export async function action({ request }) {
     }
 
     const newItem = await prisma.wishlistItem.create({
-      data: { customerId, productId },
+      data: { customerId, productId, productHandle },
     });
 
     return json(
