@@ -5,12 +5,15 @@ import prisma from "../db.server";
 
 // ✅ Loader: Fetch wishlist with full product data from Shopify
 export async function loader({ request }) {
+    console.log(request);
   const url = new URL(request.url);
-  const customerId = url.searchParams.get("customerId");
+  const customerId = url.searchParams.get("customerId") || "123123";
   console.log("🧪 Incoming Customer ID:", customerId);
 
+
+  console.log(customerId);
   if (!customerId) {
-    return json({ wishlist: [], error: "Missing customer ID" });
+    return json({ wishlist: [], error: "Missing dsas customer ID" });
   }
 
   const wishlist = await prisma.wishlistItem.findMany({
