@@ -114,10 +114,11 @@ export default function WishlistPage() {
                     {item.vendor}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">
-                    {(item.price / 100).toLocaleString("PKR", {
-                        style: "currency",
-                        currency: "Rs",
-                    })}
+                    {new Intl.NumberFormat('en-PK', {
+                        style: 'currency',
+                        currency: 'PKR',
+                        minimumFractionDigits: 0
+                    }).format(item.price / 100)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(item.createdAt).toLocaleDateString()}
