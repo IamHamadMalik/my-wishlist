@@ -5,13 +5,15 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import { AppProvider } from "@shopify/polaris";
+import '@shopify/polaris/build/esm/styles.css'; // ✅ Import Polaris styles
 
 export default function App() {
   return (
-    <html>
+    <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://cdn.shopify.com/" />
         <link
           rel="stylesheet"
@@ -21,7 +23,9 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Outlet />
+        <AppProvider i18n={{}}>
+          <Outlet />
+        </AppProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
