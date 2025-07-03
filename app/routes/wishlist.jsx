@@ -2,7 +2,6 @@ import { useFetcher, useLoaderData } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { json } from "@remix-run/node";
 import { authenticate } from "~/shopify.server";
-import { Stack } from '@shopify/polaris/build/esm/components/Stack'; // ✅ Corrected path
 import {
   Card,
   Page,
@@ -118,24 +117,24 @@ export default function Wishlist() {
           <Text>No items in your wishlist.</Text>
         </Card>
       ) : (
-        <ResourceList
-          resourceName={{ singular: "wishlist item", plural: "wishlist items" }}
-          items={wishlist}
-          renderItem={(item) => {
-            const title = products[item.productId] || item.productId;
-            return (
-              <ResourceItem id={item.id}>
-                <Stack alignment="center" distribution="equalSpacing">
-                  <Text>{title}</Text>
-                  <Badge>{item.productId}</Badge>
-                  <Button destructive onClick={() => removeFromWishlist(item.id)}>
-                    Remove
-                  </Button>
-                </Stack>
-              </ResourceItem>
-            );
-          }}
-        />
+<ResourceList
+  resourceName={{ singular: "wishlist item", plural: "wishlist items" }}
+  items={wishlist}
+  renderItem={(item) => {
+    const title = products[item.productId] || item.productId;
+    return (
+      <ResourceItem id={item.id}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Text>{title}</Text>
+          <Badge>{item.productId}</Badge>
+          <Button destructive onClick={() => removeFromWishlist(item.id)}>
+            Remove
+          </Button>
+        </div>
+      </ResourceItem>
+    );
+  }}
+/>
       )}
 
       {fetcher.data?.error && (
