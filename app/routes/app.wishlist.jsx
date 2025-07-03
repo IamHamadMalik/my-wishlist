@@ -2,10 +2,9 @@
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import prisma from "../db.server";
-import wishlistStyles from "../styles/wishlist.css";
 
 export function links() {
-  return [{ rel: "stylesheet", href: wishlistStyles }];
+  return [{ rel: "stylesheet", href: "/styles/wishlist.css" }];
 }
 
 export async function loader({ request }) {
