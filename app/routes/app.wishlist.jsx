@@ -52,52 +52,78 @@ export default function WishlistPage() {
   const { wishlist = [], error } = useLoaderData();
 
 return (
-  <div className="p-6 max-w-6xl mx-auto space-y-6">
-    <h1 className="text-3xl font-bold text-black mb-4">💖 Customer Wishlists</h1>
+  <div className="p-8 max-w-7xl mx-auto">
+    <div className="flex justify-between items-center mb-8">
+      <h1 className="text-3xl font-light text-gray-800">
+        <span className="text-pink-500">❤️</span> Customer Wishlists
+      </h1>
+      <div className="text-sm text-gray-500">
+        {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'}
+      </div>
+    </div>
 
     {error ? (
-      <p className="text-red-500 font-semibold">{error}</p>
+      <div className="bg-red-50 p-4 rounded-lg text-red-600 font-medium">
+        {error}
+      </div>
     ) : wishlist.length === 0 ? (
-      <p className="text-gray-500 italic">No wishlist items found.</p>
+      <div className="bg-gray-50 p-8 text-center rounded-lg">
+        <p className="text-gray-400 italic">No wishlist items found.</p>
+      </div>
     ) : (
-      <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {wishlist.map((item) =>
-          item.title ? (
-            <li key={item.id} className="border rounded-lg overflow-hidden shadow bg-white hover:shadow-lg transition">
-              <img
-                src={item.image}
-                alt={item.title}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4 space-y-1">
-                <a
-                  href={`https://www.luxuriawomen.com/products/${item.handle}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-lg font-semibold text-pink-600 hover:underline"
-                >
-                  {item.title}
-                </a>
-                <p className="text-sm text-gray-500">{item.vendor}</p>
-                <p className="text-gray-800 font-bold">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Added</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {wishlist.map((item) => (
+              <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-16 w-16">
+                      <img className="h-16 w-16 object-cover rounded" src={item.image} alt={item.title} />
+                    </div>
+                    <div className="ml-4">
+                      <a
+                        href={`https://www.luxuriawomen.com/products/${item.handle}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-pink-600 hover:underline"
+                      >
+                        {item.title || 'Product not available'}
+                      </a>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {item.vendor}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {(item.price / 100).toLocaleString("en-US", {
                     style: "currency",
                     currency: "USD",
                   })}
-                </p>
-                <p className="text-xs text-gray-400">
-                  Added: {new Date(item.createdAt).toLocaleDateString()}
-                </p>
-                <p className="text-xs text-gray-400">Customer ID: {item.customerId}</p>
-              </div>
-            </li>
-          ) : (
-            <li key={item.id} className="border p-4 rounded text-gray-400 italic">
-              Product not found or removed.
-            </li>
-          )
-        )}
-      </ul>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {new Date(item.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    {item.customerId}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     )}
   </div>
 );
