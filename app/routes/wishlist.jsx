@@ -2,7 +2,7 @@ import { useFetcher, useLoaderData } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { json } from "@remix-run/node";
 import { authenticate } from "~/shopify.server";
-import './styles/globals.css';
+import '../styles/globals.css';
 
 
 export async function loader({ request }) {
