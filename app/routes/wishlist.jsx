@@ -2,6 +2,7 @@ import { useFetcher, useLoaderData } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { json } from "@remix-run/node";
 import { authenticate } from "~/shopify.server";
+import { Stack } from '@shopify/polaris/build/esm/components/Stack'; // ✅ Corrected path
 import {
   Card,
   Page,
