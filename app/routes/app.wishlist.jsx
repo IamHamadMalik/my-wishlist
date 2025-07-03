@@ -81,6 +81,7 @@ export default function WishlistPage() {
               </tr>
             </thead>
             <tbody>
+                <div className="red-color">heyyyyyyyyyyyyyyyyyyyyyyyyy</div>
               {wishlist.map((item) => (
                 <tr key={item.id}>
                   <td>
