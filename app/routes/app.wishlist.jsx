@@ -51,46 +51,55 @@ export async function loader({ request }) {
 export default function WishlistPage() {
   const { wishlist = [], error } = useLoaderData();
 
-  return (
-    <div className="p-6 max-w-4xl mx-auto space-y-8">
-      <h1 className="text-3xl font-bold text-pink-600">💖 My Wishlist</h1>
+return (
+  <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <h1 className="text-3xl font-bold text-black mb-4">💖 Customer Wishlists</h1>
 
-      {error ? (
-        <p className="text-red-500 font-semibold">{error}</p>
-      ) : wishlist.length === 0 ? (
-        <p className="text-gray-500 italic">Your wishlist is empty.</p>
-      ) : (
-        <ul className="grid gap-6">
-          {wishlist.map((item) =>
-            item.title ? (
-              <li key={item.id} className="flex items-center gap-4 border p-4 rounded shadow">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-24 h-24 object-contain border rounded"
-                />
-                <div className="flex-1">
-                  <a
-                    href={`/products/${item.handle}`}
-                    className="text-lg font-semibold text-blue-600 hover:underline"
-                  >
-                    {item.title}
-                  </a>
-                  <p className="text-sm text-gray-500">{item.vendor}</p>
-                  <p className="text-gray-800 font-bold mt-1">${(item.price / 100).toFixed(2)}</p>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Added on: {new Date(item.createdAt).toLocaleString()}
+    {error ? (
+      <p className="text-red-500 font-semibold">{error}</p>
+    ) : wishlist.length === 0 ? (
+      <p className="text-gray-500 italic">No wishlist items found.</p>
+    ) : (
+      <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {wishlist.map((item) =>
+          item.title ? (
+            <li key={item.id} className="border rounded-lg overflow-hidden shadow bg-white hover:shadow-lg transition">
+              <img
+                src={item.image}
+                alt={item.title}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-4 space-y-1">
+                <a
+                  href={`https://www.luxuriawomen.com/products/${item.handle}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-lg font-semibold text-pink-600 hover:underline"
+                >
+                  {item.title}
+                </a>
+                <p className="text-sm text-gray-500">{item.vendor}</p>
+                <p className="text-gray-800 font-bold">
+                  {(item.price / 100).toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  })}
                 </p>
-              </li>
-            ) : (
-              <li key={item.id} className="border p-4 rounded text-gray-400 italic">
-                Product not found or removed.
-              </li>
-            )
-          )}
-        </ul>
-      )}
-    </div>
-  );
+                <p className="text-xs text-gray-400">
+                  Added: {new Date(item.createdAt).toLocaleDateString()}
+                </p>
+                <p className="text-xs text-gray-400">Customer ID: {item.customerId}</p>
+              </div>
+            </li>
+          ) : (
+            <li key={item.id} className="border p-4 rounded text-gray-400 italic">
+              Product not found or removed.
+            </li>
+          )
+        )}
+      </ul>
+    )}
+  </div>
+);
+
 }
