@@ -12,7 +12,6 @@ import {
   ResourceItem,
   Text,
   Badge,
-  Stack,
 } from "@shopify/polaris";
 
 export async function loader({ request }) {
