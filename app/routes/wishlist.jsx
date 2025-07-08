@@ -37,6 +37,14 @@ export async function loader({ request }) {
   }
 }
 
+
+<div className="bg-green-100 p-4 rounded-xl">
+  <p className="text-green-900 font-bold">Tailwind is working!</p>
+</div>
+
+
+
+
 export default function Wishlist() {
   const { customerId, error } = useLoaderData();
   const fetcher = useFetcher();
